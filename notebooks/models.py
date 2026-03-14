@@ -55,4 +55,7 @@ def ride_deserializer(data):
     ride_dict = json.loads(json_str)
     return Ride(**ride_dict)
 
-
+def green_ride_deserializer(data):
+    json_str = data.decode('utf-8')
+    ride_dict = json.loads(json_str)
+    return GreenRide(**ride_dict)
