@@ -34,9 +34,10 @@ def create_events_aggregated_sink(t_env):
     sink_ddl = f"""
         CREATE TABLE {table_name} (
             window_start TIMESTAMP(3),
+            window_end TIMESTAMP(3),
             PULocationID INT,
             num_trips BIGINT,
-            PRIMARY KEY (window_start, PULocationID) NOT ENFORCED
+            PRIMARY KEY (window_start, window_end, PULocationID) NOT ENFORCED
         ) WITH (
             'connector' = 'jdbc',
             'url' = 'jdbc:postgresql://postgres:5432/postgres',
@@ -67,12 +68,13 @@ def log_aggregation():
         INSERT INTO {aggregated_table}
         SELECT
             window_start,
+            window_end,
             PULocationID,
             COUNT(*) AS num_trips
         FROM TABLE(
             SESSION(TABLE {source_table}, DESCRIPTOR(event_timestamp), INTERVAL '5' MINUTE)
         )
-        GROUP BY window_start, PULocationID;
+        GROUP BY window_start, window_end, PULocationID;
 
         """).wait()
 
